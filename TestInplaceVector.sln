@@ -4,6 +4,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.14.36511.14 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestInplaceVector", "TestInplaceVector.vcxproj", "{D33FA150-41F6-46C3-B58F-62F25B387D89}"
+	ProjectSection(ProjectDependencies) = postProject
+		{39A9CB6F-6F44-4205-A01B-555DB992A76E} = {39A9CB6F-6F44-4205-A01B-555DB992A76E}
+		{7EA3A650-E7D2-41E6-9DFA-FFF3B8E68882} = {7EA3A650-E7D2-41E6-9DFA-FFF3B8E68882}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InplaceVector", "..\InplaceVector\InplaceVector.vcxproj", "{7EA3A650-E7D2-41E6-9DFA-FFF3B8E68882}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Util", "..\Util\Util.vcxproj", "{39A9CB6F-6F44-4205-A01B-555DB992A76E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +29,22 @@ Global
 		{D33FA150-41F6-46C3-B58F-62F25B387D89}.Release|x64.Build.0 = Release|x64
 		{D33FA150-41F6-46C3-B58F-62F25B387D89}.Release|x86.ActiveCfg = Release|Win32
 		{D33FA150-41F6-46C3-B58F-62F25B387D89}.Release|x86.Build.0 = Release|Win32
+		{7EA3A650-E7D2-41E6-9DFA-FFF3B8E68882}.Debug|x64.ActiveCfg = Debug|x64
+		{7EA3A650-E7D2-41E6-9DFA-FFF3B8E68882}.Debug|x64.Build.0 = Debug|x64
+		{7EA3A650-E7D2-41E6-9DFA-FFF3B8E68882}.Debug|x86.ActiveCfg = Debug|Win32
+		{7EA3A650-E7D2-41E6-9DFA-FFF3B8E68882}.Debug|x86.Build.0 = Debug|Win32
+		{7EA3A650-E7D2-41E6-9DFA-FFF3B8E68882}.Release|x64.ActiveCfg = Release|x64
+		{7EA3A650-E7D2-41E6-9DFA-FFF3B8E68882}.Release|x64.Build.0 = Release|x64
+		{7EA3A650-E7D2-41E6-9DFA-FFF3B8E68882}.Release|x86.ActiveCfg = Release|Win32
+		{7EA3A650-E7D2-41E6-9DFA-FFF3B8E68882}.Release|x86.Build.0 = Release|Win32
+		{39A9CB6F-6F44-4205-A01B-555DB992A76E}.Debug|x64.ActiveCfg = Debug|x64
+		{39A9CB6F-6F44-4205-A01B-555DB992A76E}.Debug|x64.Build.0 = Debug|x64
+		{39A9CB6F-6F44-4205-A01B-555DB992A76E}.Debug|x86.ActiveCfg = Debug|Win32
+		{39A9CB6F-6F44-4205-A01B-555DB992A76E}.Debug|x86.Build.0 = Debug|Win32
+		{39A9CB6F-6F44-4205-A01B-555DB992A76E}.Release|x64.ActiveCfg = Release|x64
+		{39A9CB6F-6F44-4205-A01B-555DB992A76E}.Release|x64.Build.0 = Release|x64
+		{39A9CB6F-6F44-4205-A01B-555DB992A76E}.Release|x86.ActiveCfg = Release|Win32
+		{39A9CB6F-6F44-4205-A01B-555DB992A76E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
