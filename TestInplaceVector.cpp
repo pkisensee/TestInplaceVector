@@ -34,6 +34,8 @@ using namespace PKIsensee;
 int __cdecl main()
 {
   inplace_vector<int,1> v;
+  test( v.unchecked_emplace_back( 42 ) == 42 );
+  test( v.back() == 42 );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
