@@ -128,7 +128,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
       <CallingConvention>StdCall</CallingConvention>
-      <DisableSpecificWarnings>4464; 4514; 4710; 4711; 4820</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4464; 4514; 4710; 4711; 4820; 5045</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -163,6 +163,9 @@
     </ProjectReference>
     <ProjectReference Include="..\Util\Util.vcxproj">
       <Project>{39a9cb6f-6f44-4205-a01b-555db992a76e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\WinShim\WinShim.vcxproj">
+      <Project>{5fb36991-edc5-47cf-84b2-268312497167}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
