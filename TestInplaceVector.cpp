@@ -164,10 +164,7 @@ int __cdecl main()
   {
     inplace_vector<int, 4> iv( 3, 42 );
     inplace_vector<int, 4> iv2( std::move(iv) );
-#pragma warning(push)
-#pragma warning(disable: 26800) // use of a moved object
     test( iv.empty() );
-#pragma warning(pop)
     test( iv != iv2 );
     test( iv2.size() == 3 );
     test( iv2.capacity() == 4 );
@@ -177,10 +174,7 @@ int __cdecl main()
 
     inplace_vector<M, 4> ivM( 3 );
     inplace_vector<M, 4> ivM2( std::move( ivM ) );
-#pragma warning(push)
-#pragma warning(disable: 26800) // use of a moved object
     test( ivM.empty() );
-#pragma warning(pop)
     test( ivM != ivM2 );
     test( ivM2.size() == 3 );
     test( ivM2.capacity() == 4 );
@@ -287,6 +281,87 @@ int __cdecl main()
     test( iv.back() == 3 );
   }
 
+  // at
+  {
+    using ivM5 = inplace_vector<M, 5>;
+
+    auto constAt = []( const ivM5& iv, size_t pos )
+      {
+        return iv.at( pos );
+      };
+
+    ivM5 iv{ 3 };
+    test( iv.at( 0 ).getStr() == "Initialized" );
+    test( constAt( iv, 1 ).getStr() == "Initialized" );
+
+    try
+    {
+      iv.at( 3 ); // non-const
+    }
+    catch ( const std::out_of_range& outOfRange )
+    {
+      test( outOfRange.what() == "inplace_vector::at"s );
+    }
+    try
+    {
+      constAt(iv, 3); // const
+    }
+    catch ( const std::out_of_range& outOfRange )
+    {
+      test( outOfRange.what() == "inplace_vector::at"s );
+    }
+  }
+
+  // operator[]
+  {
+    using ivM5 = inplace_vector<M, 5>;
+
+    auto constOpBracket = []( const ivM5& iv, size_t pos )
+      {
+        return iv[ pos ];
+      };
+
+    ivM5 iv{ 3 };
+    test( iv[0].getStr() == "Initialized");
+    test( constOpBracket( iv, 1 ).getStr() == "Initialized" );
+
+    // iv[3]; // asserts
+    // constOpBracket( iv, 3 ); // asserts
+  }
+
+  // front(), back()
+  {
+    using ivM5 = inplace_vector<M, 5>;
+    ivM5 iv;
+
+    auto constFront = []( const ivM5& iv )
+      {
+        return iv.front();
+      };
+
+    auto constBack = []( const ivM5& iv )
+      {
+        return iv.back();
+      };
+
+    M empty;
+    // test( iv.front() == M{} ); // asserts
+    // test( iv.back() == M{} ); // asserts
+    iv.assign( 1, empty );
+    test( iv.front() == empty );
+    test( iv.back() == empty );
+    test( iv.front() == iv.back() );
+    test( constFront( iv ) == constBack( iv ) );
+
+    M m2{ "b", 1, 2.0f };
+    iv.emplace( std::end(iv), m2);
+    test( iv.front() == empty );
+    test( constFront( iv ) == empty );
+    test( constBack( iv ) == m2 );
+    test( iv.back() == m2 );
+    test( iv.front() != iv.back() );
+    test( constFront( iv ) != constBack( iv ) );
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
