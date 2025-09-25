@@ -362,6 +362,34 @@ int __cdecl main()
     test( iv.front() != iv.back() );
     test( constFront( iv ) != constBack( iv ) );
   }
+
+  // data()
+  {
+    inplace_vector<int, 1> empty;
+    // test( empty.data() != nullptr ); // asserts
+
+    const int arr[ 3 ] = { 1, 2, 3 };
+    const auto init = { 1, 2, 3 };
+    inplace_vector<int, 4> iv( init );
+    test( iv.size() == 3 );
+
+    test( iv.data() != nullptr );
+    test( iv.data() != arr );
+
+    // memory layout is equivalent
+    test( memcmp( iv.data(), arr, sizeof( int ) * 3 ) == 0 );
+
+    auto constData = []( const inplace_vector<int, 4>& iv )
+      {
+        return iv.data();
+      };
+
+    test( constData(iv) != nullptr );
+    test( constData( iv ) != arr );
+
+    // memory layout is equivalent
+    test( memcmp( constData( iv ), arr, sizeof( int ) * 3 ) == 0 );
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
