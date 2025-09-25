@@ -39,9 +39,6 @@ class M // non-trival object for testing
 {
 public:
   M() : M( "Initialized", 42, 123.456f )
-    /*s_ { "Initialized" },
-    v_{ 42, 42 },
-    p_{ new float{ 123.456f } } */
   {
   }
 
@@ -52,19 +49,11 @@ public:
   {
   }
 
-
   ~M()
   {
     s_ = "Destroyed";
     v_.assign( 3, 0xDEADBEEF );
     p_.reset( new float{ 654.321f } );
-  }
-
-  void set( const std::string& s, int i, float f )
-  {
-    s_ = s;
-    v_.assign( 2, i );
-    *p_ = f;
   }
 
   std::string getStr() const
@@ -243,6 +232,60 @@ int __cdecl main()
     test( ivB.empty() );
   }
 
+  // assign() count and value
+  {
+    inplace_vector<M, 4> ivA{ 2 };
+    test( ivA[ 1 ].getStr() == "Initialized" );
+    M m{ "m", 1, 2.0f };
+
+    ivA.assign( 1, m );
+    test( ivA.size() == 1 );
+    test( ivA[ 0 ].getStr() == "m" );
+
+    ivA.assign( 3, m );
+    test( ivA.size() == 3 );
+    test( ivA[ 0 ].getStr() == "m" );
+    test( ivA[ 1 ].getStr() == "m" );
+    test( ivA[ 2 ].getStr() == "m" );
+  }
+
+  // assign() iterator range
+  {
+    const auto init = { 1, 2, 3 };
+    inplace_vector<int, 4> iv;
+    test( iv.size() == 0 );
+
+    iv.assign( std::begin( init ), std::end( init ) );
+    test( iv.size() == 3 );
+    test( iv[ 0 ] == 1 );
+    test( iv[ 1 ] == 2 );
+    test( iv[ 2 ] == 3 );
+  }
+
+  // assign() init list
+  {
+    const auto init = { M("a", 1, 2.0f), M("b", 3, 4.0f), M("c", 5, 6.0f) };
+    inplace_vector<M, 4> iv;
+    test( iv.size() == 0 );
+
+    iv.assign( init );
+    test( iv.size() == 3 );
+    test( iv[ 0 ].getStr() == "a" );
+    test( iv[ 1 ].getStr() == "b" );
+    test( iv[ 2 ].getStr() == "c" );
+  }
+
+  // assign() range
+  {
+    const auto init = { 1, 2, 3 };
+    inplace_vector<int, 4> iv;
+    test( iv.size() == 0 );
+
+    iv.assign_range( init );
+    test( iv.size() == 3 );
+    test( iv.front() == 1 );
+    test( iv.back() == 3 );
+  }
 
 }
 
