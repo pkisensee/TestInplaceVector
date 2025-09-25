@@ -16,8 +16,10 @@
 
 #include <cassert>
 #include <iostream>
+#include <memory>
 #include <print>
 #include <ranges>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -33,6 +35,61 @@ using namespace std::literals;
 #define test(e) static_cast<void>( (e) || ( Util::DebugBreak(), 0 ) )
 #endif
 
+class M // non-trival object for testing
+{
+public:
+  M() : M( "Initialized", 42, 123.456f )
+    /*s_ { "Initialized" },
+    v_{ 42, 42 },
+    p_{ new float{ 123.456f } } */
+  {
+  }
+
+  M( const std::string& s, int i, float f ) :
+    s_{ s },
+    v_{ i, i },
+    p_{ new float{ f } }
+  {
+  }
+
+
+  ~M()
+  {
+    s_ = "Destroyed";
+    v_.assign( 3, 0xDEADBEEF );
+    p_.reset( new float{ 654.321f } );
+  }
+
+  void set( const std::string& s, int i, float f )
+  {
+    s_ = s;
+    v_.assign( 2, i );
+    *p_ = f;
+  }
+
+  std::string getStr() const
+  {
+    return s_;
+  }
+
+  M( const M& ) = default;
+  M( M&& ) = default;
+  M& operator=( const M& ) = default;
+  M& operator=( M&& ) = default;
+
+  bool operator==( const M& rhs ) const
+  {
+    return s_ == rhs.s_ &&
+           v_ == rhs.v_ &&
+          *p_ == *rhs.p_;
+  }
+
+private:
+  std::string s_;
+  std::vector<int> v_;
+  std::shared_ptr<float> p_;
+};
+
 int __cdecl main()
 {
   // default ctor, size, capacity
@@ -47,6 +104,17 @@ int __cdecl main()
     iv.shrink_to_fit();
     test( iv.capacity() == 100 );
     test( iv.size() == 0 );
+
+    inplace_vector<M, 10> ivM;
+    test( ivM.empty() );
+    test( ivM.size() == 0 );
+    test( ivM.capacity() == 10 );
+    test( ivM.max_size() == 10 );
+    ivM.reserve( 5 );
+    test( ivM.capacity() == 10 );
+    ivM.shrink_to_fit();
+    test( ivM.capacity() == 10 );
+    test( ivM.size() == 0 );
   }
 
   // count ctor, front, back, array access
@@ -57,6 +125,13 @@ int __cdecl main()
     test( iv.front() == 0 );
     test( iv.back() == 0 );
     test( iv[ 1 ] == 0 );
+
+    inplace_vector<M, 4> ivM( 3 );
+    test( ivM.size() == 3 );
+    test( ivM.capacity() == 4 );
+    test( ivM.front() == M{} );
+    test( ivM.back() == M{} );
+    test( ivM[ 1 ] == M{} );
   }
 
   // count/value ctor
@@ -110,6 +185,19 @@ int __cdecl main()
     test( iv2.front() == 42 );
     test( iv2.back() == 42 );
     test( iv2[ 1 ] == 42 );
+
+    inplace_vector<M, 4> ivM( 3 );
+    inplace_vector<M, 4> ivM2( std::move( ivM ) );
+#pragma warning(push)
+#pragma warning(disable: 26800) // use of a moved object
+    test( ivM.empty() );
+#pragma warning(pop)
+    test( ivM != ivM2 );
+    test( ivM2.size() == 3 );
+    test( ivM2.capacity() == 4 );
+    test( ivM2.front().getStr() == "Initialized" );
+    test( ivM2.back().getStr() == "Initialized" );
+    test( ivM2[ 1 ] == M{} );
   }
 
   // init list ctor
@@ -127,8 +215,35 @@ int __cdecl main()
     {
       test( badAlloc.what() == "bad allocation"s );
     }
-
   }
+
+  // copy assignment
+  {
+    inplace_vector<M, 10> ivEmpty;
+    inplace_vector<M, 10> ivM1;
+    inplace_vector<M, 10> ivM2{ 10, M{ "copied from", 123, 0.11f } };
+    test( ivM1 != ivM2 );
+    ivM1 = ivM2;
+    test( ivM1 == ivM2 );
+    ivM2 = ivEmpty;
+    test( ivM2 == ivEmpty );
+  }
+
+  // move assignment
+  {
+    inplace_vector<M, 4> ivA{ 2 };
+    inplace_vector<M, 4> ivB{ 2, M{ "iv", 321, 0.22f } };
+    test( ivA[ 1 ].getStr() == "Initialized" );
+    test( ivB[ 1 ].getStr() == "iv" );
+    ivA = inplace_vector<M, 4>(); // move assignment from temp
+    test( ivA.empty() );
+    ivA = std::move( ivB ); // move assignment w/ std::move
+    test( ivA.size() == 2 );
+    test( ivA[ 1 ].getStr() == "iv" );
+    test( ivB.empty() );
+  }
+
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
