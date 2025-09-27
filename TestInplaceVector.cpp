@@ -451,8 +451,8 @@ int __cdecl main()
 
   // resize()
   {
-    using ivM5 = inplace_vector<M, 10>;
-    ivM5 iv;
+    using ivM = inplace_vector<M, 10>;
+    ivM iv;
     test( iv.size() == 0 );
     iv.resize( 0 );
     test( iv.size() == 0 );
@@ -496,6 +496,113 @@ int __cdecl main()
       test( badAlloc.what() == "bad allocation"s );
     }
   }
+
+  // insert()
+  {
+    using ivM = inplace_vector<M, 10>;
+    ivM iv;
+    M mA{ "a", 0, 1.0f };
+    M mB{ "b", 2, 3.0f };
+    M mC{ "c", 4, 5.0f };
+
+    test( iv.insert( iv.end(), mA )->getStr() == "a" );
+    test( iv.size() == 1 );
+
+    test( iv.insert( iv.begin(), mB )->getStr() == "b" );
+    test( iv.size() == 2 );
+    test( iv[ 0 ].getStr() == "b" );
+    test( iv[ 1 ].getStr() == "a" );
+
+    test( iv.insert( iv.begin() + 1, mC )->getStr() == "c" );
+    test( iv[ 0 ].getStr() == "b" );
+    test( iv[ 1 ].getStr() == "c" );
+    test( iv[ 2 ].getStr() == "a" );
+
+    test( iv.insert( iv.end(), mA)->getStr() == "a");
+    test( iv[ 0 ].getStr() == "b" );
+    test( iv[ 1 ].getStr() == "c" );
+    test( iv[ 2 ].getStr() == "a" );
+    test( iv[ 3 ].getStr() == "a" );
+
+    test( iv.insert( iv.begin(), mC )->getStr() == "c" );
+    test( iv[ 0 ].getStr() == "c" );
+    test( iv[ 1 ].getStr() == "b" );
+    test( iv[ 2 ].getStr() == "c" );
+    test( iv[ 3 ].getStr() == "a" );
+    test( iv[ 4 ].getStr() == "a" );
+
+    test( iv.insert( iv.begin() + 2, M{} )->getStr() == "Initialized" ); // move
+    test( iv[ 0 ].getStr() == "c" );
+    test( iv[ 1 ].getStr() == "b" );
+    test( iv[ 2 ].getStr() == "Initialized" );
+    test( iv[ 3 ].getStr() == "c" );
+    test( iv[ 4 ].getStr() == "a" );
+    test( iv[ 5 ].getStr() == "a" );
+
+    test( iv.insert( iv.begin(), 2, M{} )->getStr() == "Initialized" ); // count
+    test( iv[ 0 ].getStr() == "Initialized" );
+    test( iv[ 1 ].getStr() == "Initialized" );
+    test( iv[ 2 ].getStr() == "c" );
+    test( iv[ 3 ].getStr() == "b" );
+    test( iv[ 4 ].getStr() == "Initialized" );
+    test( iv[ 5 ].getStr() == "c" );
+    test( iv[ 6 ].getStr() == "a" );
+    test( iv[ 7 ].getStr() == "a" );
+
+    try
+    {
+      iv.insert( iv.begin(), 3, M{} );
+    }
+    catch ( const std::bad_alloc& badAlloc )
+    {
+      test( badAlloc.what() == "bad allocation"s );
+      test( iv.size() == 8 );
+    }
+
+    using ivInt = inplace_vector<int, 10>;
+    ivInt ivI;
+    const auto init = { 1, 2, 3 };
+    test( *( ivI.insert( ivI.end(), init.begin(), init.end() ) ) == 1 ); // iterators
+    test( ivI.size() == 3 );
+    test( ivI[ 0 ] == 1 );
+    test( ivI[ 1 ] == 2 );
+    test( ivI[ 2 ] == 3 );
+    test( *( ivI.insert( ivI.begin()+2, init.begin(), init.end() ) ) == 1 );
+    test( ivI.size() == 6 );
+    test( ivI[ 0 ] == 1 );
+    test( ivI[ 1 ] == 2 );
+    test( ivI[ 2 ] == 1 );
+    test( ivI[ 3 ] == 2 );
+    test( ivI[ 4 ] == 3 );
+    test( ivI[ 5 ] == 3 );
+
+    // insert nothing
+    test( ivI.insert( ivI.begin() + 1, init.end(), init.end() ) == ivI.begin() + 1 );
+
+    // init list
+    auto oldEnd = ivI.end();
+    test( ivI.insert( ivI.end(), init ) == oldEnd );
+    test( ivI[ 0 ] == 1 );
+    test( ivI[ 1 ] == 2 );
+    test( ivI[ 2 ] == 1 );
+    test( ivI[ 3 ] == 2 );
+    test( ivI[ 4 ] == 3 );
+    test( ivI[ 5 ] == 3 );
+    test( ivI[ 6 ] == 1 );
+    test( ivI[ 7 ] == 2 );
+    test( ivI[ 8 ] == 3 );
+
+    try
+    {
+      ivI.insert( ivI.begin(), 3, 42 );
+    }
+    catch ( const std::bad_alloc& badAlloc )
+    {
+      test( badAlloc.what() == "bad allocation"s );
+      test( ivI.size() == 9 );
+    }
+  }
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
