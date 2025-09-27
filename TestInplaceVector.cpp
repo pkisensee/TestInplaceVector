@@ -807,6 +807,17 @@ int __cdecl main()
       test( iv.size() == 3 );
       test( iv[ 2 ] == 3 );
     }
+
+    test( iv.try_append_range( init ) == std::ranges::begin( init ) + 1 );
+    test( iv.size() == 4 );
+    test( iv[ 2 ] == 3 );
+    test( iv[ 3 ] == 1 );
+
+    test( iv.try_append_range( init ) == std::ranges::begin( init ) );
+    test( iv.size() == 4 );
+
+    const std::vector<int> emptyRange;
+    test( iv.try_append_range( emptyRange ) == std::ranges::end( emptyRange ) );
   }
 }
 
