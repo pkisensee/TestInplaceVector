@@ -246,6 +246,22 @@ int __cdecl main()
     test( ivB.empty() );
   }
 
+  // init list assignment
+  {
+    const auto init = { M( "a", 1, 2.0f ), M( "b", 3, 4.0f ), M( "c", 5, 6.0f ) };
+    inplace_vector<M, 4> iv;
+    test( iv.size() == 0 );
+    iv = init;
+    test( iv.size() == 3 );
+    test( iv[ 0 ].getStr() == "a" );
+    test( iv[ 1 ].getStr() == "b" );
+    test( iv[ 2 ].getStr() == "c" );
+
+    iv = init;
+    test( iv.size() == 3 );
+    test( iv[ 2 ].getStr() == "c" );
+  }
+
   // assign() count and value
   {
     inplace_vector<M, 4> ivA{ 2 };
@@ -753,10 +769,16 @@ int __cdecl main()
   {
     using ivC = inplace_vector<char, 3>;
     ivC iv;
+    char b = 'b';
+    char c = 'c';
 
     test( iv.push_back( 'a' ) == 'a' );
-    test( *iv.try_push_back( 'b' ) == 'b' );
-    test( iv.unchecked_push_back( 'c' ) == 'c' );
+    test( *iv.try_push_back( 'b' ) == 'b' ); // move
+    iv.pop_back();
+    test( *iv.try_push_back( b ) == 'b' ); // const value&
+    test( iv.unchecked_push_back( 'c' ) == 'c' ); // move
+    iv.pop_back();
+    test( iv.unchecked_push_back( c ) == 'c' ); // const value&
     test( iv[ 0 ] == 'a' );
     test( iv[ 1 ] == 'b' );
     test( iv[ 2 ] == 'c' );
