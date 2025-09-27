@@ -74,6 +74,16 @@ public:
           *p_ == *rhs.p_;
   }
 
+  bool operator<( const M& rhs ) const
+  {
+    return s_ < rhs.s_;
+  }
+
+  bool operator>( const M& rhs ) const
+  {
+    return s_ > rhs.s_;
+  }
+
 private:
   std::string s_;
   std::vector<int> v_;
@@ -988,6 +998,34 @@ int __cdecl main()
     test( iv[ 1 ] == 5 );
     test( iv[ 2 ] == 7 );
     test( iv[ 3 ] == 9 );
+  }
+
+  // comparison
+  {
+    inplace_vector<int, 2> ivA{ {1,2} };
+    inplace_vector<int, 2> ivB{ {1,2} };
+    test( ivA == ivB );
+    ivA[ 0 ] = 2;
+    test( ivA != ivB );
+    test( ivA > ivB );
+    test( ivB < ivA );
+    test( ivA >= ivB );
+    test( ivB <= ivA );
+    ivA.pop_back();
+    test( ivA < ivB );
+    test( ivB > ivA );
+
+    inplace_vector<M, 2> ivX{ M{}, M{} };
+    inplace_vector<M, 2> ivY{ M{}, M{} };
+    test( ivX == ivY );
+    ivX[ 0 ] = M{ "a", 1, 20.f };
+    test( ivX > ivY );
+    test( ivY < ivX );
+    test( ivX >= ivY );
+    test( ivY <= ivX );
+    ivX[ 0 ] = M{};
+    test( ivX >= ivY );
+    test( ivY <= ivX );
   }
 }
 
