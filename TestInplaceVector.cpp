@@ -390,6 +390,112 @@ int __cdecl main()
     // memory layout is equivalent
     test( memcmp( constData( iv ), arr, sizeof( int ) * 3 ) == 0 );
   }
+
+  // Iterators
+  {
+    const auto init = { 1.0, 2.0, 3.0 };
+    inplace_vector<double, 4> iv( init );
+
+    test( iv.begin() == iv.cbegin() );
+    test( *iv.begin() == 1.0 );
+    test( *iv.cbegin() == 1.0 );
+
+    test( iv.end() == iv.cend() );
+    test( *( iv.end() - 1 ) == 3.0 );
+    test( *( iv.cend() - 1 ) == 3.0 );
+
+    test( iv.rbegin() == iv.crbegin() );
+    test( *iv.rbegin() == 3.0 );
+    test( *iv.crbegin() == 3.0 );
+
+    test( iv.rend() == iv.crend() );
+    test( *( iv.rend() - 1 ) == 1.0 );
+    test( *( iv.crend() - 1 ) == 1.0 );
+
+    auto constBegin = []( const inplace_vector<double, 4>& iv )
+      {
+        return iv.begin();
+      };
+
+    auto constEnd = []( const inplace_vector<double, 4>& iv )
+      {
+        return iv.end();
+      };
+
+    auto constRBegin = []( const inplace_vector<double, 4>& iv )
+      {
+        return iv.rbegin();
+      };
+
+    auto constREnd = []( const inplace_vector<double, 4>& iv )
+      {
+        return iv.rend();
+      };
+
+    test( constBegin(iv) == iv.cbegin() );
+    test( *constBegin(iv) == 1.0 );
+    test( *constBegin(iv) == 1.0 );
+
+    test( constEnd(iv) == iv.cend() );
+    test( *( constEnd( iv ) - 1 ) == 3.0 );
+    test( *( constEnd( iv ) - 1 ) == 3.0 );
+
+    test( constRBegin( iv ) == iv.crbegin() );
+    test( *constRBegin( iv ) == 3.0 );
+    test( *constRBegin( iv ) == 3.0 );
+
+    test( constREnd( iv ) == iv.crend() );
+    test( *( constREnd( iv ) - 1 ) == 1.0 );
+    test( *( constREnd( iv ) - 1 ) == 1.0 );
+  }
+
+  // resize()
+  {
+    using ivM5 = inplace_vector<M, 10>;
+    ivM5 iv;
+    test( iv.size() == 0 );
+    iv.resize( 0 );
+    test( iv.size() == 0 );
+    iv.resize( 1 );
+    test( iv.size() == 1 );
+    test( iv.front().getStr() == "Initialized" );
+    iv.resize( 0 );
+    test( iv.size() == 0 );
+    iv.resize( 5 );
+    test( iv[4].getStr() == "Initialized" );
+
+    M mA{ "a", 0, 1.0f };
+    iv.resize( 6, mA );
+    test( iv.size() == 6 );
+    test( iv[ 4 ].getStr() == "Initialized" );
+    test( iv[ 5 ].getStr() == "a" );
+    iv.resize( 5, mA );
+    test( iv.size() == 5 );
+    test( iv[ 4 ].getStr() == "Initialized" );
+    iv.resize( 4 );
+    iv.resize( 10, mA );
+    test( iv.size() == 10 );
+    test( iv[ 3 ].getStr() == "Initialized" );
+    for ( size_t i = 4; i < 10; ++i )
+      test( iv[ i ].getStr() == "a" );
+
+    try
+    {
+      iv.resize( 10+1 );
+    }
+    catch ( const std::bad_alloc& badAlloc )
+    {
+      test( badAlloc.what() == "bad allocation"s );
+    }
+    try
+    {
+      iv.resize( 10+1, mA );
+    }
+    catch ( const std::bad_alloc& badAlloc )
+    {
+      test( badAlloc.what() == "bad allocation"s );
+    }
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
