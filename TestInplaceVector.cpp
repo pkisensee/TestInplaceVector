@@ -17,6 +17,7 @@
 #include <cassert>
 #include <iostream>
 #include <memory>
+#include <numeric>
 #include <print>
 #include <ranges>
 #include <string>
@@ -104,6 +105,15 @@ int __cdecl main()
     ivM.shrink_to_fit();
     test( ivM.capacity() == 10 );
     test( ivM.size() == 0 );
+
+    try
+    {
+      ivM.reserve( 11 );
+    }
+    catch ( std::bad_alloc& badAlloc )
+    {
+      test( badAlloc.what() == "bad allocation"s );
+    }
   }
 
   // count ctor, front, back, array access
@@ -953,6 +963,31 @@ int __cdecl main()
     test( ivm[ 1 ].getStr() == "y" );
     test( ivm2[ 0 ].getStr() == "a" );
     test( ivm2[ 1 ].getStr() == "b" );
+
+    std::swap( ivm, ivm2 );
+    test( ivm[ 0 ].getStr() == "a" );
+    test( ivm[ 1 ].getStr() == "b" );
+    test( ivm2[ 0 ].getStr() == "x" );
+    test( ivm2[ 1 ].getStr() == "y" );
+  }
+
+  // non-member erase and erase_if
+  {
+    inplace_vector<int, 10> iv( 10, 0 );
+    std::ranges::iota( iv, 0 );
+
+    auto count = erase( iv, 3 );
+    test( count == 1 );
+    test( iv[ 2 ] == 2 );
+    test( iv[ 3 ] == 4 );
+
+    count = erase_if( iv, []( int x ) { return x % 2 == 0; } );
+    test( count == 5 );
+    test( iv.size() == 4 );
+    test( iv[ 0 ] == 1 );
+    test( iv[ 1 ] == 5 );
+    test( iv[ 2 ] == 7 );
+    test( iv[ 3 ] == 9 );
   }
 }
 
