@@ -819,6 +819,114 @@ int __cdecl main()
     const std::vector<int> emptyRange;
     test( iv.try_append_range( emptyRange ) == std::ranges::end( emptyRange ) );
   }
+
+  // clear(), erase()
+  {
+    using ivC = inplace_vector<char, 5>;
+    ivC iv;
+
+    test( iv.push_back( 'a') == 'a' );
+    iv.clear();
+    test( iv.empty() );
+
+    test( iv.push_back( 'a' ) == 'a' );
+    test( iv.push_back( 'b' ) == 'b' );
+    test( iv[ 1 ] == 'b' );
+    iv.clear();
+    test( iv.size() == 0 );
+
+    // erase w/ pos
+    test( iv.push_back( 'a' ) == 'a' );
+    test( iv.push_back( 'b' ) == 'b' );
+    test( iv.push_back( 'c' ) == 'c' );
+    test( iv.push_back( 'd' ) == 'd' );
+    test( iv.push_back( 'e' ) == 'e' );
+    test( iv.size() == 5 );
+    test( *iv.erase( iv.begin() ) == 'b' ); // erase a
+    test( iv.size() == 4 );
+    test( *iv.erase( iv.begin() + 1 ) == 'd' ); // erase c
+    test( iv.size() == 3 );
+    test( iv[ 0 ] == 'b' );
+    test( iv[ 1 ] == 'd' );
+    test( iv[ 2 ] == 'e' );
+    // test( iv.erase( iv.end() ) == iv.end() ); // assertion; end() cannot be used for pos
+    auto newEnd = iv.erase( iv.end() - 1 );
+    test( newEnd == iv.end() );
+    test( iv.size() == 2 );
+    test( iv[ 0 ] == 'b' );
+    test( iv[ 1 ] == 'd' );
+    iv.erase( iv.begin() );
+    test( iv[ 0 ] == 'd' );
+    iv.erase( iv.begin() );
+    test( iv.empty() );
+    // iv.erase( iv.begin() ); // assertion; cannot call on empty container
+
+    // erase w/ iterators
+    test( iv.push_back( 'a' ) == 'a' );
+    test( iv.push_back( 'b' ) == 'b' );
+    test( iv.push_back( 'c' ) == 'c' );
+    test( iv.push_back( 'd' ) == 'd' );
+    test( iv.push_back( 'e' ) == 'e' );
+    test( iv.size() == 5 );
+    test( *iv.erase( iv.begin(), iv.begin() ) == 'a' ); // removes nothing
+    test( iv.size() == 5 );
+    test( *iv.erase( iv.begin() + 1, iv.begin() + 3 ) == 'd' ); // removes bc
+    test( iv.size() == 3 );
+    test( iv[ 0 ] == 'a' );
+    test( iv[ 1 ] == 'd' );
+    test( iv[ 2 ] == 'e' );
+    auto result = iv.erase( iv.begin(), iv.end() );
+    test( result == iv.end() );
+    test( iv.empty() );
+
+    // clear/erase w/ non-trivial elements
+    using ivM = inplace_vector<M, 5>;
+    ivM ivm;
+
+    test( ivm.push_back( M{} ) == M{} );
+    ivm.clear();
+    test( ivm.empty() );
+
+    const auto init = { M{ "a", 0, 1.0f },
+                        M{ "b", 0, 1.0f },
+                        M{ "c", 0, 1.0f },
+                        M{ "d", 0, 1.0f },
+                        M{ "e", 0, 1.0f } };
+    ivm.append_range( init );
+    ivm.clear();
+    test( ivm.size() == 0 );
+    ivm.append_range( init );
+
+    test( ivm.erase( ivm.begin() )->getStr() == "b" ); // erase a
+    test( ivm.size() == 4 );
+    test( ivm.erase( ivm.begin() + 1 )->getStr() == "d" ); // erase c
+    test( ivm.size() == 3 );
+    test( ivm[ 0 ].getStr() == "b" );
+    test( ivm[ 1 ].getStr() == "d" );
+    test( ivm[ 2 ].getStr() == "e" );
+    auto newEndm =  ivm.erase( ivm.end() - 1 );
+    test( newEndm == ivm.end() );
+    test( ivm.size() == 2 );
+    test( ivm[ 0 ].getStr() == "b" );
+    test( ivm[ 1 ].getStr() == "d" );
+    ivm.erase( ivm.begin() );
+    test( ivm[ 0 ].getStr() == "d" );
+    ivm.erase( ivm.begin() );
+    test( ivm.empty() );
+
+    // erase w/ iterators
+    ivm.append_range( init );
+    test( ivm.erase( ivm.begin(), ivm.begin() )->getStr() == "a" ); // removes nothing
+    test( ivm.size() == 5 );
+    test( ivm.erase( ivm.begin() + 1, ivm.begin() + 3 )->getStr() == "d" ); // removes bc
+    test( ivm.size() == 3 );
+    test( ivm[ 0 ].getStr() == "a" );
+    test( ivm[ 1 ].getStr() == "d" );
+    test( ivm[ 2 ].getStr() == "e" );
+    auto resultm = ivm.erase( ivm.begin(), ivm.end() );
+    test( resultm == ivm.end() );
+    test( ivm.empty() );
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
