@@ -729,6 +729,65 @@ int __cdecl main()
     // test( iv.unchecked_emplace_back( 'd' ) == 'd' ); // assertion
   }
 
+  // push_back() and friends
+  {
+    using ivC = inplace_vector<char, 3>;
+    ivC iv;
+
+    test( iv.push_back( 'a' ) == 'a' );
+    test( *iv.try_push_back( 'b' ) == 'b' );
+    test( iv.unchecked_push_back( 'c' ) == 'c' );
+    test( iv[ 0 ] == 'a' );
+    test( iv[ 1 ] == 'b' );
+    test( iv[ 2 ] == 'c' );
+
+    test( iv.try_push_back( 'd' ) == nullptr );
+    // test( iv.unchecked_push_back( 'e' ) == 'e' ); // assertion
+
+    try
+    {
+      iv.push_back( 'f' );
+    }
+    catch ( std::bad_alloc& badAlloc )
+    {
+      test( badAlloc.what() == "bad allocation"s );
+      test( iv.size() == 3 );
+      test( iv[ 2 ] == 'c' );
+    }
+  }
+
+  // pop_back()
+  {
+    using ivC = inplace_vector<char, 3>;
+    ivC iv;
+
+    // iv.pop_back(); // assertion
+    test( iv.push_back( 'a' ) == 'a' );
+    iv.pop_back();
+    test( iv.empty() );
+    test( iv.push_back( 'a' ) == 'a' );
+    test( iv.push_back( 'b' ) == 'b' );
+    iv.pop_back();
+    test( iv.size() == 1 );
+    test( iv[ 0 ] == 'a' );
+
+    using ivM = inplace_vector<M, 2>;
+    ivM ivm;
+
+    test( ivm.push_back( M{} ) == M{} );
+    ivm.pop_back();
+    test( ivm.empty() );
+
+    M mA{ "a", 0, 1.0f };
+    M mB{ "b", 0, 1.0f };
+    test( ivm.push_back( mA ) == mA );
+    test( ivm.push_back( mB ) == mB );
+    test( ivm[ 1 ] == mB );
+    ivm.pop_back();
+    test( ivm.size() == 1 );
+    test( ivm[ 0 ] == mA );
+
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
