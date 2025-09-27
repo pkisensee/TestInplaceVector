@@ -904,7 +904,7 @@ int __cdecl main()
     test( ivm[ 0 ].getStr() == "b" );
     test( ivm[ 1 ].getStr() == "d" );
     test( ivm[ 2 ].getStr() == "e" );
-    auto newEndm =  ivm.erase( ivm.end() - 1 );
+    auto newEndm = ivm.erase( ivm.end() - 1 );
     test( newEndm == ivm.end() );
     test( ivm.size() == 2 );
     test( ivm[ 0 ].getStr() == "b" );
@@ -926,6 +926,33 @@ int __cdecl main()
     auto resultm = ivm.erase( ivm.begin(), ivm.end() );
     test( resultm == ivm.end() );
     test( ivm.empty() );
+  }
+
+  // swap
+  {
+    using ivI = inplace_vector<int, 5>;
+    ivI ivi( { 1,2,3,4,5 } );
+    ivI ivi2( { 5,4,3,2,1 } );
+    ivi.swap( ivi2 );
+    test( ivi[ 0 ] == 5 );
+    test( ivi[ 1 ] == 4 );
+    test( ivi[ 2 ] == 3 );
+    test( ivi[ 3 ] == 2 );
+    test( ivi[ 4 ] == 1 );
+    test( ivi2[ 0 ] == 1 );
+    test( ivi2[ 1 ] == 2 );
+    test( ivi2[ 2 ] == 3 );
+    test( ivi2[ 3 ] == 4 );
+    test( ivi2[ 4 ] == 5 );
+
+    using ivM = inplace_vector<M, 2>;
+    ivM ivm{ { M{ "a", 1, 1.0f }, M{ "b", 2, 2.0f } } };
+    ivM ivm2{ { M{ "x", 3, 3.0f }, M{ "y", 4, 4.0f } } };
+    ivm.swap( ivm2 );
+    test( ivm[ 0 ].getStr() == "x" );
+    test( ivm[ 1 ].getStr() == "y" );
+    test( ivm2[ 0 ].getStr() == "a" );
+    test( ivm2[ 1 ].getStr() == "b" );
   }
 }
 
