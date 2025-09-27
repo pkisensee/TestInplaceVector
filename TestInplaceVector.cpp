@@ -567,7 +567,7 @@ int __cdecl main()
     test( ivI[ 0 ] == 1 );
     test( ivI[ 1 ] == 2 );
     test( ivI[ 2 ] == 3 );
-    test( *( ivI.insert( ivI.begin()+2, init.begin(), init.end() ) ) == 1 );
+    test( *( ivI.insert( ivI.begin() + 2, init.begin(), init.end() ) ) == 1 );
     test( ivI.size() == 6 );
     test( ivI[ 0 ] == 1 );
     test( ivI[ 1 ] == 2 );
@@ -618,6 +618,115 @@ int __cdecl main()
     oldEnd = ivI.end();
     test( ivI.insert_range( ivI.end(), init ) == oldEnd );
     test( ivI.size() == 9 );
+  }
+
+  // emplace()
+  {
+    using ivC = inplace_vector<char, 3>;
+    ivC iv;
+
+    test( iv.emplace( iv.end(), 'a' ) == iv.begin() );
+    test( iv.size() == 1 );
+    test( iv[ 0 ] == 'a' );
+
+    auto posB = iv.emplace( iv.end(), 'b' );
+    test( posB == iv.end() - 1 );
+    test( posB == iv.begin() + 1 );
+    test( *posB == 'b' );
+    test( iv.size() == 2 );
+    test( iv[ 0 ] == 'a' );
+    test( iv[ 1 ] == 'b' );
+
+    test( iv.emplace( iv.begin(), 'c' ) == iv.begin() );
+    test( iv[ 0 ] == 'c' );
+    test( iv[ 1 ] == 'a' );
+    test( iv[ 2 ] == 'b' );
+
+    try
+    {
+      iv.emplace( iv.begin(), 'd' );
+    }
+    catch ( std::bad_alloc& badAlloc )
+    {
+      test( badAlloc.what() == "bad allocation"s );
+      test( iv.size() == 3 );
+      test( iv[ 2 ] == 'b' );
+    }
+  }
+
+  // emplace_back()
+  {
+    using ivC = inplace_vector<char, 3>;
+    ivC iv;
+
+    test( iv.emplace_back( 'a' ) == 'a' );
+    test( iv.size() == 1 );
+    test( iv[ 0 ] == 'a' );
+
+    test( iv.emplace_back( 'b' ) == 'b' );
+    test( iv.size() == 2 );
+    test( iv[ 0 ] == 'a' );
+    test( iv[ 1 ] == 'b' );
+
+    test( iv.emplace_back( 'c' ) == 'c' );
+    test( iv[ 0 ] == 'a' );
+    test( iv[ 1 ] == 'b' );
+    test( iv[ 2 ] == 'c' );
+
+    try
+    {
+      iv.emplace_back( 'd' );
+    }
+    catch ( std::bad_alloc& badAlloc )
+    {
+      test( badAlloc.what() == "bad allocation"s );
+      test( iv.size() == 3 );
+      test( iv[ 2 ] == 'c' );
+    }
+  }
+
+  // try_emplace_back()
+  {
+    using ivC = inplace_vector<char, 3>;
+    ivC iv;
+
+    test( *iv.try_emplace_back( 'a' ) == 'a' );
+    test( iv.size() == 1 );
+    test( iv[ 0 ] == 'a' );
+
+    test( *iv.try_emplace_back( 'b' ) == 'b' );
+    test( iv.size() == 2 );
+    test( iv[ 0 ] == 'a' );
+    test( iv[ 1 ] == 'b' );
+
+    test( *iv.try_emplace_back( 'c' ) == 'c' );
+    test( iv[ 0 ] == 'a' );
+    test( iv[ 1 ] == 'b' );
+    test( iv[ 2 ] == 'c' );
+
+    test( iv.try_emplace_back( 'd' ) == nullptr );
+  }
+
+  // unchecked_emplace_back()
+  {
+    using ivC = inplace_vector<char, 3>;
+    ivC iv;
+
+    test( iv.unchecked_emplace_back( 'a' ) == 'a' );
+    test( iv.size() == 1 );
+    test( iv[ 0 ] == 'a' );
+
+    test( iv.unchecked_emplace_back( 'b' ) == 'b' );
+    test( iv.size() == 2 );
+    test( iv[ 0 ] == 'a' );
+    test( iv[ 1 ] == 'b' );
+
+    test( iv.unchecked_emplace_back( 'c' ) == 'c' );
+    test( iv[ 0 ] == 'a' );
+    test( iv[ 1 ] == 'b' );
+    test( iv[ 2 ] == 'c' );
+
+    // test( iv.unchecked_emplace_back( 'd' ) == 'd' ); // assertion
   }
 
 }
