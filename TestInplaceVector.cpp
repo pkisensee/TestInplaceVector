@@ -497,7 +497,7 @@ int __cdecl main()
     }
   }
 
-  // insert()
+  // insert() and insert_range()
   {
     using ivM = inplace_vector<M, 10>;
     ivM iv;
@@ -601,6 +601,23 @@ int __cdecl main()
       test( badAlloc.what() == "bad allocation"s );
       test( ivI.size() == 9 );
     }
+
+    ivI.clear();
+    ivI.insert_range( ivI.end(), init ); // insert_range
+    test( ivI.size() == 3 );
+    test( ivI[ 2 ] = 3 );
+    ivI.insert_range( ivI.begin() + 1, init );
+    test( ivI.size() == 6 );
+    test( ivI[ 0 ] == 1 );
+    test( ivI[ 1 ] == 1 );
+    test( ivI[ 2 ] == 2 );
+    test( ivI[ 3 ] == 3 );
+    test( ivI[ 4 ] == 2 );
+    test( ivI[ 5 ] == 3 );
+
+    oldEnd = ivI.end();
+    test( ivI.insert_range( ivI.end(), init ) == oldEnd );
+    test( ivI.size() == 9 );
   }
 
 }
