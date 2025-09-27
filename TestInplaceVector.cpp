@@ -786,7 +786,27 @@ int __cdecl main()
     ivm.pop_back();
     test( ivm.size() == 1 );
     test( ivm[ 0 ] == mA );
+  }
 
+  // append_range()
+  {
+    const auto init = { 1, 2, 3 };
+    inplace_vector<int, 4> iv;
+    iv.append_range( init );
+    test( iv[ 0 ] == 1 );
+    test( iv[ 1 ] == 2 );
+    test( iv[ 2 ] == 3 );
+
+    try
+    {
+      iv.append_range( init );
+    }
+    catch( std::bad_alloc& badAlloc )
+    {
+      test( badAlloc.what() == "bad allocation"s );
+      test( iv.size() == 3 );
+      test( iv[ 2 ] == 3 );
+    }
   }
 }
 
