@@ -92,7 +92,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
       <CallingConvention>StdCall</CallingConvention>
-      <DisableSpecificWarnings>4464; 4514; 4710; 4711; 4820; 5045; 26800</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4464; 4514; 4710; 4711; 4820; 5045; 5246; 26800</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -111,7 +111,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
       <CallingConvention>StdCall</CallingConvention>
-      <DisableSpecificWarnings>4464; 4514; 4710; 4711; 4820; 5045; 26800</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4464; 4514; 4710; 4711; 4820; 5045; 5246; 26800</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,7 +128,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
       <CallingConvention>StdCall</CallingConvention>
-      <DisableSpecificWarnings>4464; 4514; 4710; 4711; 4820; 5045; 26800</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4464; 4514; 4710; 4711; 4820; 5045; 5246; 26800</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,7 +147,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
       <CallingConvention>StdCall</CallingConvention>
-      <DisableSpecificWarnings>4464; 4514; 4710; 4711; 4820; 5045; 26800</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4464; 4514; 4710; 4711; 4820; 5045; 5246; 26800</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

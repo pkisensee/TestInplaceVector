@@ -1048,6 +1048,34 @@ int __cdecl main()
     test( ivX >= ivY );
     test( ivY <= ivX );
   }
+
+  // test code from cppreference.com
+  {
+    inplace_vector<int, 4> v1{ 0, 1, 2 };
+    test( v1.max_size() == 4 );
+    test( v1.capacity() == 4 );
+    test( v1.size() == 3 );
+    test( std::ranges::equal( v1, std::array{ 0, 1, 2 } ) );
+    test( v1[ 0 ] == 0 );
+    test( v1.at( 0 ) == 0 );
+    test( v1.front() == 0 );
+    test( *v1.begin() == 0 );
+    test( v1.back() == 2 );
+    v1.push_back( 3 );
+    test( v1.back() == 3 );
+    test( std::ranges::equal( v1, std::array{ 0, 1, 2, 3 } ) );
+    v1.resize( 3 );
+    test( std::ranges::equal( v1, std::array{ 0, 1, 2 } ) );
+    test( v1.try_push_back( 3 ) != nullptr );
+    test( v1.back() == 3 );
+    test( v1.size() == 4 );
+    test( v1.try_push_back( 13 ) == nullptr ); // no place
+    test( v1.back() == 3 );
+    test( v1.size() == 4 );
+    v1.clear();
+    test( v1.size() == 0 );
+    test( v1.empty() );
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
