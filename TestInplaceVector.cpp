@@ -35,6 +35,26 @@ using namespace std::literals;
 #define test(e) static_cast<void>( (e) || ( Util::DebugBreak(), 0 ) )
 #endif
 
+// clever lambda to pass any type of expression to the TryCatch helper
+#define testex(e, E, msg) TryCatch<E>( ( [&]() { (e); } ), msg );
+
+template <typename Exception, typename TryLambda>
+void TryCatch( TryLambda&& tryLambda, std::string_view exceptionMsg )
+{
+  try
+  {
+    tryLambda();
+  }
+  catch ( Exception& ex )
+  {
+    test( ex.what() == exceptionMsg );
+  }
+  catch ( ... )
+  {
+    test( false );
+  }
+}
+
 class M // non-trival object for testing
 {
 public:
@@ -115,14 +135,7 @@ int __cdecl main()
     test( ivM.capacity() == 10 );
     test( ivM.size() == 0 );
 
-    try
-    {
-      ivM.reserve( 11 );
-    }
-    catch ( std::bad_alloc& badAlloc )
-    {
-      test( badAlloc.what() == "bad allocation"s );
-    }
+    testex( ivM.reserve( 11 ), std::bad_alloc, "bad allocation"sv );
   }
 
   // count ctor, front, back, array access
@@ -209,6 +222,7 @@ int __cdecl main()
     test( iv.size() == 3 );
     test( iv.front() == 1 );
     test( iv.back() == 3 );
+    testex( ( [&]() { inplace_vector<int, 2> ivx( init ); } ), std::bad_alloc, "bad allocation"sv );
     try
     {
       inplace_vector<int, 2> ivx( init ); // throws; ivx too small
@@ -329,22 +343,8 @@ int __cdecl main()
     test( iv.at( 0 ).getStr() == "Initialized" );
     test( constAt( iv, 1 ).getStr() == "Initialized" );
 
-    try
-    {
-      iv.at( 3 ); // non-const
-    }
-    catch ( const std::out_of_range& outOfRange )
-    {
-      test( outOfRange.what() == "inplace_vector::at"s );
-    }
-    try
-    {
-      constAt(iv, 3); // const
-    }
-    catch ( const std::out_of_range& outOfRange )
-    {
-      test( outOfRange.what() == "inplace_vector::at"s );
-    }
+    testex( iv.at( 3 ), std::out_of_range&, "inplace_vector::at"sv );
+    testex( constAt( iv, 3 ), std::out_of_range&, "inplace_vector::at"sv );
   }
 
   // operator[]
@@ -514,22 +514,8 @@ int __cdecl main()
     for ( size_t i = 4; i < 10; ++i )
       test( iv[ i ].getStr() == "a" );
 
-    try
-    {
-      iv.resize( 10+1 );
-    }
-    catch ( const std::bad_alloc& badAlloc )
-    {
-      test( badAlloc.what() == "bad allocation"s );
-    }
-    try
-    {
-      iv.resize( 10+1, mA );
-    }
-    catch ( const std::bad_alloc& badAlloc )
-    {
-      test( badAlloc.what() == "bad allocation"s );
-    }
+    testex( iv.resize( 10 + 1 ), std::bad_alloc, "bad allocation"sv );
+    testex( iv.resize( 10 + 1, mA ), std::bad_alloc, "bad allocation"sv );
   }
 
   // insert() and insert_range()
@@ -584,15 +570,8 @@ int __cdecl main()
     test( iv[ 6 ].getStr() == "a" );
     test( iv[ 7 ].getStr() == "a" );
 
-    try
-    {
-      iv.insert( iv.begin(), 3, M{} );
-    }
-    catch ( const std::bad_alloc& badAlloc )
-    {
-      test( badAlloc.what() == "bad allocation"s );
-      test( iv.size() == 8 );
-    }
+    testex( iv.insert( iv.begin(), 3, M{} ), std::bad_alloc, "bad allocation"sv );
+    test( iv.size() == 8 );
 
     using ivInt = inplace_vector<int, 10>;
     ivInt ivI;
@@ -627,15 +606,8 @@ int __cdecl main()
     test( ivI[ 7 ] == 2 );
     test( ivI[ 8 ] == 3 );
 
-    try
-    {
-      ivI.insert( ivI.begin(), 3, 42 );
-    }
-    catch ( const std::bad_alloc& badAlloc )
-    {
-      test( badAlloc.what() == "bad allocation"s );
-      test( ivI.size() == 9 );
-    }
+    testex( ivI.insert( ivI.begin(), 3, 42 ), std::bad_alloc, "bad allocation"sv );
+    test( ivI.size() == 9 );
 
     ivI.clear();
     ivI.insert_range( ivI.end(), init ); // insert_range
@@ -677,16 +649,9 @@ int __cdecl main()
     test( iv[ 1 ] == 'a' );
     test( iv[ 2 ] == 'b' );
 
-    try
-    {
-      iv.emplace( iv.begin(), 'd' );
-    }
-    catch ( std::bad_alloc& badAlloc )
-    {
-      test( badAlloc.what() == "bad allocation"s );
-      test( iv.size() == 3 );
-      test( iv[ 2 ] == 'b' );
-    }
+    testex( iv.emplace( iv.begin(), 'd' ), std::bad_alloc, "bad allocation"sv );
+    test( iv.size() == 3 );
+    test( iv[ 2 ] == 'b' );
   }
 
   // emplace_back()
@@ -708,16 +673,9 @@ int __cdecl main()
     test( iv[ 1 ] == 'b' );
     test( iv[ 2 ] == 'c' );
 
-    try
-    {
-      iv.emplace_back( 'd' );
-    }
-    catch ( std::bad_alloc& badAlloc )
-    {
-      test( badAlloc.what() == "bad allocation"s );
-      test( iv.size() == 3 );
-      test( iv[ 2 ] == 'c' );
-    }
+    testex( iv.emplace_back( 'd' ), std::bad_alloc, "bad allocation"sv );
+    test( iv.size() == 3 );
+    test( iv[ 2 ] == 'c' );
   }
 
   // try_emplace_back()
@@ -785,16 +743,9 @@ int __cdecl main()
     test( iv.try_push_back( 'd' ) == nullptr );
     // test( iv.unchecked_push_back( 'e' ) == 'e' ); // assertion
 
-    try
-    {
-      iv.push_back( 'f' );
-    }
-    catch ( std::bad_alloc& badAlloc )
-    {
-      test( badAlloc.what() == "bad allocation"s );
-      test( iv.size() == 3 );
-      test( iv[ 2 ] == 'c' );
-    }
+    testex( iv.push_back( 'f' ), std::bad_alloc, "bad allocation"sv );
+    test( iv.size() == 3 );
+    test( iv[ 2 ] == 'c' );
   }
 
   // pop_back()
@@ -838,16 +789,9 @@ int __cdecl main()
     test( iv[ 1 ] == 2 );
     test( iv[ 2 ] == 3 );
 
-    try
-    {
-      iv.append_range( init );
-    }
-    catch( std::bad_alloc& badAlloc )
-    {
-      test( badAlloc.what() == "bad allocation"s );
-      test( iv.size() == 3 );
-      test( iv[ 2 ] == 3 );
-    }
+    testex( iv.append_range( init ), std::bad_alloc, "bad allocation"sv );
+    test( iv.size() == 3 );
+    test( iv[ 2 ] == 3 );
 
     test( iv.try_append_range( init ) == std::ranges::begin( init ) + 1 );
     test( iv.size() == 4 );
