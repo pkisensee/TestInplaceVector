@@ -71,7 +71,7 @@ public:
 
   ~M()
   {
-    s_ = "Destroyed";
+    s_ = "Destroyed"sv;
     v_.assign( 3, 0xDEADBEEF );
     p_.reset( new float{ 654.321f } );
   }
@@ -111,6 +111,8 @@ private:
 
 int __cdecl main()
 {
+  // inplace_vector<void, 10> voidvec;
+
   // default ctor, size, capacity
   {
     inplace_vector<int, 100> iv;
@@ -210,8 +212,8 @@ int __cdecl main()
     test( ivM != ivM2 );
     test( ivM2.size() == 3 );
     test( ivM2.capacity() == 4 );
-    test( ivM2.front().getStr() == "Initialized" );
-    test( ivM2.back().getStr() == "Initialized" );
+    test( ivM2.front().getStr() == "Initialized"sv );
+    test( ivM2.back().getStr() == "Initialized"sv );
     test( ivM2[ 1 ] == M{} );
   }
 
@@ -229,7 +231,7 @@ int __cdecl main()
     }
     catch ( const std::bad_alloc& badAlloc )
     {
-      test( badAlloc.what() == "bad allocation"s );
+      test( badAlloc.what() == "bad allocation"sv );
     }
   }
 
@@ -249,7 +251,7 @@ int __cdecl main()
   {
     inplace_vector<M, 4> ivA{ 2 };
     inplace_vector<M, 4> ivB{ 2, M{ "iv", 321, 0.22f } };
-    test( ivA[ 1 ].getStr() == "Initialized" );
+    test( ivA[ 1 ].getStr() == "Initialized"sv );
     test( ivB[ 1 ].getStr() == "iv" );
     ivA = inplace_vector<M, 4>(); // move assignment from temp
     test( ivA.empty() );
@@ -266,30 +268,30 @@ int __cdecl main()
     test( iv.size() == 0 );
     iv = init;
     test( iv.size() == 3 );
-    test( iv[ 0 ].getStr() == "a" );
-    test( iv[ 1 ].getStr() == "b" );
-    test( iv[ 2 ].getStr() == "c" );
+    test( iv[ 0 ].getStr() == "a"sv );
+    test( iv[ 1 ].getStr() == "b"sv );
+    test( iv[ 2 ].getStr() == "c"sv );
 
     iv = init;
     test( iv.size() == 3 );
-    test( iv[ 2 ].getStr() == "c" );
+    test( iv[ 2 ].getStr() == "c"sv );
   }
 
   // assign() count and value
   {
     inplace_vector<M, 4> ivA{ 2 };
-    test( ivA[ 1 ].getStr() == "Initialized" );
+    test( ivA[ 1 ].getStr() == "Initialized"sv );
     M m{ "m", 1, 2.0f };
 
     ivA.assign( 1, m );
     test( ivA.size() == 1 );
-    test( ivA[ 0 ].getStr() == "m" );
+    test( ivA[ 0 ].getStr() == "m"sv );
 
     ivA.assign( 3, m );
     test( ivA.size() == 3 );
-    test( ivA[ 0 ].getStr() == "m" );
-    test( ivA[ 1 ].getStr() == "m" );
-    test( ivA[ 2 ].getStr() == "m" );
+    test( ivA[ 0 ].getStr() == "m"sv );
+    test( ivA[ 1 ].getStr() == "m"sv );
+    test( ivA[ 2 ].getStr() == "m"sv );
   }
 
   // assign() iterator range
@@ -313,9 +315,9 @@ int __cdecl main()
 
     iv.assign( init );
     test( iv.size() == 3 );
-    test( iv[ 0 ].getStr() == "a" );
-    test( iv[ 1 ].getStr() == "b" );
-    test( iv[ 2 ].getStr() == "c" );
+    test( iv[ 0 ].getStr() == "a"sv );
+    test( iv[ 1 ].getStr() == "b"sv );
+    test( iv[ 2 ].getStr() == "c"sv );
   }
 
   // assign() range
@@ -340,8 +342,8 @@ int __cdecl main()
       };
 
     ivM5 iv{ 3 };
-    test( iv.at( 0 ).getStr() == "Initialized" );
-    test( constAt( iv, 1 ).getStr() == "Initialized" );
+    test( iv.at( 0 ).getStr() == "Initialized"sv );
+    test( constAt( iv, 1 ).getStr() == "Initialized"sv );
 
     testex( iv.at( 3 ), std::out_of_range&, "inplace_vector::at"sv );
     testex( constAt( iv, 3 ), std::out_of_range&, "inplace_vector::at"sv );
@@ -357,8 +359,8 @@ int __cdecl main()
       };
 
     ivM5 iv{ 3 };
-    test( iv[0].getStr() == "Initialized");
-    test( constOpBracket( iv, 1 ).getStr() == "Initialized" );
+    test( iv[0].getStr() == "Initialized"sv );
+    test( constOpBracket( iv, 1 ).getStr() == "Initialized"sv );
 
     // iv[3]; // asserts
     // constOpBracket( iv, 3 ); // asserts
@@ -493,24 +495,24 @@ int __cdecl main()
     test( iv.size() == 0 );
     iv.resize( 1 );
     test( iv.size() == 1 );
-    test( iv.front().getStr() == "Initialized" );
+    test( iv.front().getStr() == "Initialized"sv );
     iv.resize( 0 );
     test( iv.size() == 0 );
     iv.resize( 5 );
-    test( iv[4].getStr() == "Initialized" );
+    test( iv[4].getStr() == "Initialized"sv );
 
     M mA{ "a", 0, 1.0f };
     iv.resize( 6, mA );
     test( iv.size() == 6 );
-    test( iv[ 4 ].getStr() == "Initialized" );
+    test( iv[ 4 ].getStr() == "Initialized"sv );
     test( iv[ 5 ].getStr() == "a" );
     iv.resize( 5, mA );
     test( iv.size() == 5 );
-    test( iv[ 4 ].getStr() == "Initialized" );
+    test( iv[ 4 ].getStr() == "Initialized"sv );
     iv.resize( 4 );
     iv.resize( 10, mA );
     test( iv.size() == 10 );
-    test( iv[ 3 ].getStr() == "Initialized" );
+    test( iv[ 3 ].getStr() == "Initialized"sv );
     for ( size_t i = 4; i < 10; ++i )
       test( iv[ i ].getStr() == "a" );
 
@@ -526,46 +528,46 @@ int __cdecl main()
     M mB{ "b", 2, 3.0f };
     M mC{ "c", 4, 5.0f };
 
-    test( iv.insert( iv.end(), mA )->getStr() == "a" );
+    test( iv.insert( iv.end(), mA )->getStr() == "a"sv );
     test( iv.size() == 1 );
 
-    test( iv.insert( iv.begin(), mB )->getStr() == "b" );
+    test( iv.insert( iv.begin(), mB )->getStr() == "b"sv );
     test( iv.size() == 2 );
     test( iv[ 0 ].getStr() == "b" );
     test( iv[ 1 ].getStr() == "a" );
 
-    test( iv.insert( iv.begin() + 1, mC )->getStr() == "c" );
+    test( iv.insert( iv.begin() + 1, mC )->getStr() == "c"sv );
     test( iv[ 0 ].getStr() == "b" );
     test( iv[ 1 ].getStr() == "c" );
     test( iv[ 2 ].getStr() == "a" );
 
-    test( iv.insert( iv.end(), mA)->getStr() == "a");
+    test( iv.insert( iv.end(), mA)->getStr() == "a"sv );
     test( iv[ 0 ].getStr() == "b" );
     test( iv[ 1 ].getStr() == "c" );
     test( iv[ 2 ].getStr() == "a" );
     test( iv[ 3 ].getStr() == "a" );
 
-    test( iv.insert( iv.begin(), mC )->getStr() == "c" );
+    test( iv.insert( iv.begin(), mC )->getStr() == "c"sv );
     test( iv[ 0 ].getStr() == "c" );
     test( iv[ 1 ].getStr() == "b" );
     test( iv[ 2 ].getStr() == "c" );
     test( iv[ 3 ].getStr() == "a" );
     test( iv[ 4 ].getStr() == "a" );
 
-    test( iv.insert( iv.begin() + 2, M{} )->getStr() == "Initialized" ); // move
+    test( iv.insert( iv.begin() + 2, M{} )->getStr() == "Initialized"sv ); // move
     test( iv[ 0 ].getStr() == "c" );
     test( iv[ 1 ].getStr() == "b" );
-    test( iv[ 2 ].getStr() == "Initialized" );
+    test( iv[ 2 ].getStr() == "Initialized"sv );
     test( iv[ 3 ].getStr() == "c" );
     test( iv[ 4 ].getStr() == "a" );
     test( iv[ 5 ].getStr() == "a" );
 
-    test( iv.insert( iv.begin(), 2, M{} )->getStr() == "Initialized" ); // count
-    test( iv[ 0 ].getStr() == "Initialized" );
-    test( iv[ 1 ].getStr() == "Initialized" );
+    test( iv.insert( iv.begin(), 2, M{} )->getStr() == "Initialized"sv ); // count
+    test( iv[ 0 ].getStr() == "Initialized"sv );
+    test( iv[ 1 ].getStr() == "Initialized"sv );
     test( iv[ 2 ].getStr() == "c" );
     test( iv[ 3 ].getStr() == "b" );
-    test( iv[ 4 ].getStr() == "Initialized" );
+    test( iv[ 4 ].getStr() == "Initialized"sv );
     test( iv[ 5 ].getStr() == "c" );
     test( iv[ 6 ].getStr() == "a" );
     test( iv[ 7 ].getStr() == "a" );
@@ -882,32 +884,32 @@ int __cdecl main()
     test( ivm.size() == 0 );
     ivm.append_range( init );
 
-    test( ivm.erase( ivm.begin() )->getStr() == "b" ); // erase a
+    test( ivm.erase( ivm.begin() )->getStr() == "b"sv ); // erase a
     test( ivm.size() == 4 );
-    test( ivm.erase( ivm.begin() + 1 )->getStr() == "d" ); // erase c
+    test( ivm.erase( ivm.begin() + 1 )->getStr() == "d"sv ); // erase c
     test( ivm.size() == 3 );
-    test( ivm[ 0 ].getStr() == "b" );
-    test( ivm[ 1 ].getStr() == "d" );
-    test( ivm[ 2 ].getStr() == "e" );
+    test( ivm[ 0 ].getStr() == "b"sv );
+    test( ivm[ 1 ].getStr() == "d"sv );
+    test( ivm[ 2 ].getStr() == "e"sv );
     auto newEndm = ivm.erase( ivm.end() - 1 );
     test( newEndm == ivm.end() );
     test( ivm.size() == 2 );
-    test( ivm[ 0 ].getStr() == "b" );
-    test( ivm[ 1 ].getStr() == "d" );
+    test( ivm[ 0 ].getStr() == "b"sv );
+    test( ivm[ 1 ].getStr() == "d"sv );
     ivm.erase( ivm.begin() );
-    test( ivm[ 0 ].getStr() == "d" );
+    test( ivm[ 0 ].getStr() == "d"sv );
     ivm.erase( ivm.begin() );
     test( ivm.empty() );
 
     // erase w/ iterators
     ivm.append_range( init );
-    test( ivm.erase( ivm.begin(), ivm.begin() )->getStr() == "a" ); // removes nothing
+    test( ivm.erase( ivm.begin(), ivm.begin() )->getStr() == "a"sv ); // removes nothing
     test( ivm.size() == 5 );
-    test( ivm.erase( ivm.begin() + 1, ivm.begin() + 3 )->getStr() == "d" ); // removes bc
+    test( ivm.erase( ivm.begin() + 1, ivm.begin() + 3 )->getStr() == "d"sv ); // removes bc
     test( ivm.size() == 3 );
-    test( ivm[ 0 ].getStr() == "a" );
-    test( ivm[ 1 ].getStr() == "d" );
-    test( ivm[ 2 ].getStr() == "e" );
+    test( ivm[ 0 ].getStr() == "a"sv );
+    test( ivm[ 1 ].getStr() == "d"sv );
+    test( ivm[ 2 ].getStr() == "e"sv );
     auto resultm = ivm.erase( ivm.begin(), ivm.end() );
     test( resultm == ivm.end() );
     test( ivm.empty() );
@@ -934,16 +936,16 @@ int __cdecl main()
     ivM ivm{ { M{ "a", 1, 1.0f }, M{ "b", 2, 2.0f } } };
     ivM ivm2{ { M{ "x", 3, 3.0f }, M{ "y", 4, 4.0f } } };
     ivm.swap( ivm2 );
-    test( ivm[ 0 ].getStr() == "x" );
-    test( ivm[ 1 ].getStr() == "y" );
-    test( ivm2[ 0 ].getStr() == "a" );
-    test( ivm2[ 1 ].getStr() == "b" );
+    test( ivm[ 0 ].getStr() == "x"sv );
+    test( ivm[ 1 ].getStr() == "y"sv );
+    test( ivm2[ 0 ].getStr() == "a"sv );
+    test( ivm2[ 1 ].getStr() == "b"sv );
 
     std::swap( ivm, ivm2 );
-    test( ivm[ 0 ].getStr() == "a" );
-    test( ivm[ 1 ].getStr() == "b" );
-    test( ivm2[ 0 ].getStr() == "x" );
-    test( ivm2[ 1 ].getStr() == "y" );
+    test( ivm[ 0 ].getStr() == "a"sv );
+    test( ivm[ 1 ].getStr() == "b"sv );
+    test( ivm2[ 0 ].getStr() == "x"sv );
+    test( ivm2[ 1 ].getStr() == "y"sv );
   }
 
   // non-member erase and erase_if
@@ -971,14 +973,14 @@ int __cdecl main()
     inplace_vector<int, 2> ivB{ {1,2} };
     test( ivA == ivB );
     ivA[ 0 ] = 2;
-    test( ivA != ivB );
+    test( ivA != ivB ); // {2,2} != {1,2}
     test( ivA > ivB );
     test( ivB < ivA );
     test( ivA >= ivB );
     test( ivB <= ivA );
     ivA.pop_back();
-    test( ivA < ivB );
-    test( ivB > ivA );
+    test( ivA > ivB ); // {2} > {1,2}
+    test( ivB < ivA ); // {1,2} < {2]
 
     inplace_vector<M, 2> ivX{ M{}, M{} };
     inplace_vector<M, 2> ivY{ M{}, M{} };
